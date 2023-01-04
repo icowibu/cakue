@@ -20,9 +20,79 @@ function SignUp() {
     password: "",
   });
   const auth = getAuth();
-  const username = useRef();
-  const password = useRef();
+  const usernameDOM = useRef();
+  const passwordDOM = useRef();
 
+  // fungsi untuk menghandle warning pada input
+  useEffect(() => {
+    const usernameWarning = warningInput.username.length;
+    const passwordWarning = warningInput.password.length;
+
+    if (usernameWarning !== 0) {
+      // kondisi username ada warning
+      usernameWarningDOM(warningInput.username, true);
+    }
+
+    if (usernameWarning === 0) {
+      // kondisi username tidak ada warning
+      usernameWarningDOM(warningInput.username, false);
+    }
+
+    if (passwordWarning !== 0) {
+      // kondisi password ada warning
+      passwordWarningDOM(warningInput.password, true);
+    }
+
+    if (passwordWarning === 0) {
+      // kondisi password tidak ada warning
+      passwordWarningDOM(warningInput.password, false);
+    }
+  }, [warningInput]);
+
+  // handle jika ada warning di username
+  function usernameWarningDOM(message, isWarning) {
+    if (isWarning) {
+      const warningTextUsername = document.createElement("p");
+      warningTextUsername.innerText = message;
+      warningTextUsername.classList.add("warning-text");
+
+      console.log(usernameDOM);
+
+      if (usernameDOM.current.nextSibling == null) {
+        usernameDOM.current.parentElement.appendChild(warningTextUsername);
+      } else {
+        usernameDOM.current.nextSibling.classList.remove("hidden");
+      }
+    } else {
+      if (usernameDOM.current.nextSibling !== null) {
+        usernameDOM.current.nextSibling.classList.add("hidden");
+      }
+    }
+  }
+
+  // handle jika ada warning di password
+  function passwordWarningDOM(message, isWarning) {
+    // jika ada error
+    if (isWarning) {
+      const passwordTextWarning = document.createElement("p");
+      passwordTextWarning.innerText = message;
+      passwordTextWarning.classList.add("warning-text");
+
+      if (passwordDOM.current.nextSibling == null) {
+        passwordDOM.current.parentElement.appendChild(passwordTextWarning);
+      } else {
+        passwordDOM.current.nextSibling.classList.remove("hidden");
+      }
+
+      // jika gada error
+    } else {
+      if (passwordDOM.current.nextSibling !== null) {
+        passwordDOM.current.nextSibling.classList.add("hidden");
+      }
+    }
+  }
+
+  // setiap ada perubahan di input section akan mentriger setWarningInput. untuk mengecek apakah user memasukan pola yang seharusnya pada input
   const handleChangeForm = (e) => {
     const name = e.target.name;
     const value = e.target.value;
@@ -53,6 +123,7 @@ function SignUp() {
     }
   };
 
+  // memasukan nilai dari input kedalam variable state
   const handleChange = (e) => {
     const newState = { [e.target.name]: e.target.value };
     setState({
@@ -114,7 +185,7 @@ function SignUp() {
                 type="text"
                 className="input-account"
                 onChange={handleChange}
-                ref={username}
+                ref={usernameDOM}
                 required
               />
             </div>
@@ -135,7 +206,7 @@ function SignUp() {
                 type="password"
                 className="input-account"
                 onChange={handleChange}
-                ref={password}
+                ref={passwordDOM}
                 required
               />
             </div>
