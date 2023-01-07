@@ -22,7 +22,7 @@ const popupHidden = () => {
   popup.classList.add("-translate-x-[10%]");
 };
 
-const handlePopup = (status, pesan) => {
+const handlePopup = (isWarning, pesan) => {
   const setBackgroundGreen = () => {
     popup.classList.remove("bg-red-500");
     popup.classList.add("bg-green-500");
@@ -32,9 +32,11 @@ const handlePopup = (status, pesan) => {
     popup.classList.remove("bg-green-500");
     popup.classList.add("bg-red-500");
   };
+
   console.log(message);
+
   message.innerHTML = pesan;
-  status === true ? setBackgroundGreen() : setBackgroundRed();
+  isWarning ? setBackgroundRed() : setBackgroundGreen();
   popupShow();
 };
 

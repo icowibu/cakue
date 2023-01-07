@@ -4,13 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDGvNIfrqJVI1UU4Kf0rBSG-eAMfpcM3Mw",
-  authDomain: "cakue-project.firebaseapp.com",
-  projectId: "cakue-project",
-  storageBucket: "cakue-project.appspot.com",
-  messagingSenderId: "297970886155",
-  appId: "1:297970886155:web:160de2bdc97ed8dfc6c90e",
-  measurementId: "G-88J9V916K3",
+  apiKey: "AIzaSyA9vwC2pLYz-gfw1YNeolXC7xPxlQuwaLc",
+  authDomain: "cakue-81c5f.firebaseapp.com",
+  projectId: "cakue-81c5f",
+  storageBucket: "cakue-81c5f.appspot.com",
+  messagingSenderId: "854563444847",
+  appId: "1:854563444847:web:158344b09a1a6ad162159a",
 };
 
 const app = initializeApp(firebaseConfig);

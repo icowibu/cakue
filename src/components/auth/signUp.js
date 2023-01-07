@@ -6,10 +6,10 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
 } from "firebase/auth";
+import { firebaseAuth } from "../../config/fbConfig";
 
 // custom function for dom
 import { handlePopup, popupHidden } from "./popupHandle";
-import { warning } from "@remix-run/router";
 
 // main content
 function SignUp() {
@@ -22,6 +22,9 @@ function SignUp() {
   const auth = getAuth();
   const usernameDOM = useRef();
   const passwordDOM = useRef();
+  const submitButton = useRef();
+
+  console.log(auth);
 
   // fungsi untuk menghandle warning pada input
   useEffect(() => {
@@ -47,16 +50,23 @@ function SignUp() {
       // kondisi password tidak ada warning
       passwordWarningDOM(warningInput.password, false);
     }
+
+    if (passwordWarning !== 0 || usernameWarning !== 0) {
+      submitButton.current.classList.add("cursor-not-allowed");
+      submitButton.current.parentElement.classList.add("opacity-60");
+    } else {
+      submitButton.current.classList.remove("cursor-not-allowed");
+      submitButton.current.parentElement.classList.remove("opacity-60");
+    }
   }, [warningInput]);
 
   // handle jika ada warning di username
   function usernameWarningDOM(message, isWarning) {
     if (isWarning) {
+      // create element
       const warningTextUsername = document.createElement("p");
       warningTextUsername.innerText = message;
       warningTextUsername.classList.add("warning-text");
-
-      console.log(usernameDOM);
 
       if (usernameDOM.current.nextSibling == null) {
         usernameDOM.current.parentElement.appendChild(warningTextUsername);
@@ -97,35 +107,39 @@ function SignUp() {
     const name = e.target.name;
     const value = e.target.value;
 
+    // check on input username
     if (name === "displayName") {
       const regex = new RegExp(/^[^\W_]{5,15}$/);
       const checkUsername = regex.test(value);
 
-      !checkUsername
-        ? setWarningInput({
-            ...warningInput,
-            username:
-              "username tidak boleh lebih dari 15 character dan tidak boleh memakai simbol",
-          })
-        : setWarningInput({ ...warningInput, username: "" });
+      if (!checkUsername) {
+        setWarningInput({
+          ...warningInput,
+          username:
+            "username tidak boleh lebih dari 15 character dan tidak boleh memakai simbol",
+        });
+      } else if (checkUsername) {
+        setWarningInput({ ...warningInput, username: "" });
+      }
     }
 
+    // check on input password
     if (name === "password") {
       const regexExp = new RegExp(/^(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$/);
       const checkPassword = regexExp.test(value);
-      !checkPassword
-        ? setWarningInput({
-            ...warningInput,
-            password:
-              "password minimal mempunyai 8 karakter dan memiliki 1 nomor",
-          })
-        : setWarningInput({ ...warningInput, password: "" });
-    }
-  };
 
-  // memasukan nilai dari input kedalam variable state
-  const handleChange = (e) => {
-    const newState = { [e.target.name]: e.target.value };
+      if (!checkPassword) {
+        setWarningInput({
+          ...warningInput,
+          password:
+            "password minimal mempunyai 8 karakter dan memiliki 1 nomor",
+        });
+      } else if (checkPassword) {
+        setWarningInput({ ...warningInput, password: "" });
+      }
+    }
+
+    const newState = { name: value };
     setState({
       ...state,
       ...newState,
@@ -135,27 +149,22 @@ function SignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // auth user and store data to firestore
-    if (!state) {
-      handlePopup("password harus lebih dari 8 karakter");
-    } else {
-      createUserWithEmailAndPassword(auth, state.email, state.password)
-        .then(() => {
-          auth.currentUser.displayName = state.displayName;
-          sendEmailVerification(auth.currentUser)
-            .then(() => {
-              const status = true; //berhasil
-              const message =
-                "akun kamu udah beres dibuat gan. sekarang kamu tinggal verifikasi emailnya. note: mungkin aja email verifikasinya dikirim sebagai email spam";
-              handlePopup(status, message);
-            })
-            .catch((err) => err.message);
-        })
-        .catch((err) => {
-          const status = false; //gagal
-          const message = err.message;
-          handlePopup(status, message);
-        });
-    }
+    // if (
+    //   warningInput.username.length !== 0 ||
+    //   warningInput.password.length !== 0
+    // ) {
+    //   handlePopup(true, "cek dulu inputnya gan. barangkali ada yang salah");
+    // } else {
+
+    // }
+
+    createUserWithEmailAndPassword(auth, state.email, state.password)
+      .then(() => {
+        console.log("akun berhasil dibuat");
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   return (
@@ -184,7 +193,6 @@ function SignUp() {
                 name="displayName"
                 type="text"
                 className="input-account"
-                onChange={handleChange}
                 ref={usernameDOM}
                 required
               />
@@ -195,7 +203,6 @@ function SignUp() {
                 name="email"
                 type="email"
                 className="input-account focus:!border-blue-400"
-                onChange={handleChange}
                 required
               />
             </div>
@@ -205,13 +212,14 @@ function SignUp() {
                 name="password"
                 type="password"
                 className="input-account"
-                onChange={handleChange}
                 ref={passwordDOM}
                 required
               />
             </div>
             <div className="submit-btn">
-              <button type="submit">submit</button>
+              <button type="submit" ref={submitButton}>
+                submit
+              </button>
             </div>
           </form>
 
